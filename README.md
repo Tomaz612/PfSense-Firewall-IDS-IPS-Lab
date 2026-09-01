@@ -54,28 +54,15 @@ The firewall was temporarily disabled from the console shell (`pfctl -d`) to all
 
 A permanent firewall rule was then created to allow GUI access going forward:
 
-| Field | Value |
-|---|---|
-| Interface | WAN |
-| Action | Pass |
-| Protocol | TCP |
-| Source | Network: 192.168.1.0/24 |
-| Destination | WAN address |
-| Destination port | 443 |
-| Description | Allow GUI access from home network |
-
 ![Firewall Rule](images/firewall_rule_1.png)
+
 
 ### 1.5 DHCP Server (LAN)
 
 Configured under **Services ▸ DHCP Server ▸ LAN**:
 
-| Field | Value |
-|---|---|
-| Range | 192.168.2.100 – 192.168.2.199 |
-| DNS server | 192.168.1.1 (home router) |
-
 ![Firewall Rule](images/dhcp_config.png)
+
 
 ## Next Steps
 
