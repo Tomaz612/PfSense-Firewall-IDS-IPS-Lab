@@ -149,10 +149,12 @@ A static route was added on Kali so that return/forward traffic for the internal
 ```bash
 sudo ip route add 192.168.2.0/24 via 192.168.1.162
 ```
+
 ![Static Route](images/static_route.png)
 
 
 Successfull pings now:
+
 ![Pings](images/ping_to_ubuntu_vm.png)
 
 
