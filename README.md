@@ -175,10 +175,6 @@ From Kali, a SYN flood was launched against the Ubuntu victim on port 80:
 sudo hping3 -S -p 80 --flood 192.168.2.10
 ```
 
-```
---- 192.168.2.10 hping statistic ---
-285256 packets transmitted, 0 packets received, 100% packet loss
-```
 ![statistics](images/dos_command.png)
 
 **On the reported packet loss:** in `--flood` mode, `hping3` disables response listening entirely in order to maximize send throughput — it never checks for replies, so `packets received` is always 0 and the reported loss is not a measure of whether the attack succeeded. Delivery of the attack traffic was instead confirmed independently through:
@@ -230,7 +226,7 @@ This time, **396,968 packets** were transmitted:
 
 ### 3.3 Verifying the Block in pfSense
 
-Checking **Firewall ▸ Rules ▸ WAN** confirms the new rule caught the traffic: **396,987 packets blocked**, matching the volume sent by Kali. This confirms the rule is working as intended — the flood is being dropped at the firewall instead of reaching the internal network.
+Checking **Firewall ▸ Rules ▸ WAN** confirms the new rule caught the traffic: **396,963 packets blocked**, matching the volume sent by Kali. This confirms the rule is working as intended — the flood is being dropped at the firewall instead of reaching the internal network.
 
 ![Blocked packet count in pfSense](images/pfsense_gui_packets_blocked.png)
 
