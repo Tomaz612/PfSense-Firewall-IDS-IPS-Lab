@@ -2,9 +2,12 @@
 
 ## Overview
 
-This project sets up a small virtualized network to simulate an external attacker targeting an internal host protected by a pfSense firewall. The lab consists of three virtual machines — pfSense (firewall), Kali Linux (attacker), and Ubuntu Desktop (victim) — used to demonstrate a Denial-of-Service (DoS) attack, capture it with Wireshark, and mitigate it using firewall rules.
+This project implements a small virtualized network to study how a perimeter firewall (pfSense) handles a Denial-of-Service (DoS) attack from an external host. The lab consists of three virtual machines — **pfSense** (firewall), **Kali Linux** (attacker), and **Ubuntu Desktop** (victim) — used to:
 
-**Status:** pfSense installation and network configuration complete. Ubuntu VM in progress. Kali VM, attack simulation, and mitigation still pending.
+1. Stand up an isolated internal network behind a firewall
+2. Simulate a SYN flood attack with `hping3`
+3. Capture and analyze the attack traffic with Wireshark
+4. Mitigate the attack using pfSense firewall rules and review the resulting logs
 
 ## Lab Architecture
 
@@ -13,8 +16,8 @@ This project sets up a small virtualized network to simulate an external attacke
 | Home Network | Physical | 192.168.1.0/24 | Provides internet access |
 | pfSense — WAN | Bridged | 192.168.1.162/24 (DHCP) | Edge firewall interface facing home network |
 | pfSense — LAN | Internal (`intnet`) | 192.168.2.1/24 | Internal firewall interface |
-| Kali Linux (Attacker) | Bridged | TBD | External attacker host |
-| Ubuntu Desktop (Victim) | Internal (`intnet`) | 192.168.2.100–199 (DHCP) | Internal victim host |
+| Kali Linux (Attacker) | Bridged | 192.168.1.125/24 (DHCP) | External attacker host |
+| Ubuntu Desktop (Victim) | Internal (`intnet`) | 192.168.2.10 (DHCP) | Internal victim host |
 
 ![Architecture](images/pfsense_dos_lab_architecture.png)
 
@@ -46,7 +49,7 @@ Interfaces were assigned via the pfSense console:
 
 ### 1.3 Network Addressing
 
-The LAN interface was manually set to `192.168.2.1/24` to avoid a subnet conflict with the home network (which also uses `192.168.1.0/24`). IPv6 was disabled, and HTTPS was kept as the webConfigurator protocol.
+The LAN interface was manually set to `192.168.2.1/24` to avoid a subnet conflict with the home network (which also uses `192.168.1.0/24`).
 
 ### 1.4 Enabling GUI Access
 
