@@ -250,21 +250,53 @@ Since IP-based connectivity worked but name resolution didn't, the issue was nar
 
 > **Takeaway:** when IP-based tests succeed but name-based tests fail, the issue is almost always DNS — check the resolver configuration before suspecting routing or firewall rules.
 
-## Next Steps
 
-- [ ] Install and configure **Suricata** on pfSense as an IDS/IPS to detect and automatically respond to flood-style traffic patterns, rather than relying solely on manually created static block rules
+
+## Part 4 — IDS/IPS with Suricata
+
+With manual firewall rules already demonstrated in Part 3, Suricata was added on top of pfSense to move from static, hand-written blocking toward signature-based intrusion detection and prevention.
+
+### 4.1 Installing Suricata
+
+Installed via **System ▸ Package Manager ▸ Available Packages**, searching for `Suricata` and installing the package.
+
+### 4.2 Adding Suricata to the WAN Interface
+
+Under **Services ▸ Suricata ▸ Interfaces ▸ Add**, Suricata was bound to the WAN interface — the same interface Kali's traffic enters through:
+
+![WAN interface added to Suricata](images/1_interface_wan.png)
+
+### 4.3 Disabling Hardware Offloading
+
+After saving, pfSense raised a warning that Suricata requires **Hardware Checksum Offloading**, **Hardware TCP Segmentation Offloading**, and **Hardware Large Receive Offloading** to all be disabled for correct packet inspection — these offloading features can cause the NIC to present checksums/segments to Suricata in a way it can't correctly parse, leading to missed or malformed detections.
+
+Fixed under **System ▸ Advanced ▸ Networking**, by enabling:
+
+![Disable hardware checksum offloading](images/2_checksum_offload.png)
+
+- **Disable hardware checksum offload**
+
+pfSense re-configured the interfaces after this change to apply it.
+
+### 4.4 Enabling Block Offenders (IPS Mode)
+
+On the WAN interface's Suricata settings, the following option was enabled:
+
+![Block Offenders option](images/3_block_offenders.png)
+
+- **Block Offenders** — automatically blocks any host that triggers a Suricata alert, turning Suricata from a passive IDS into an active IPS.
+
+### 4.5 Selecting Rule Sources
+
+Under **Global Settings**, rule sources were configured (e.g. the ET Open ruleset):
+
+![Rule configuration](images/4_rule_configuration.png)
+
+Settings were saved, and the rules were downloaded from **Updates ▸ Update**.
+
+### 4.6 Next: Testing Detection
+
+<!-- TODO: re-run the hping3 SYN flood from Kali with Suricata active, then capture: (1) the generated alert under Services ▸ Suricata ▸ Alerts, and (2) confirmation that Kali's IP was auto-blocked under Block Offenders. -->
 
 ---
-
-## Key Takeaways
-
-- pfSense's default WAN protections (block private networks/bogons) can silently interfere with fully-private lab topologies and must be adjusted deliberately, not disabled blindly in production.
-- Firewall rules are protocol-specific — an ICMP allow rule does not imply TCP is allowed; each protocol needed for the test must be explicitly permitted.
-- `hping3 --flood` statistics report transmission, not delivery — attack success must be verified independently (firewall counters, packet capture) rather than trusted from the tool's own summary.
-
-## Repository
-
-**Name:** `PfSense-DoS-Lab`
-**Description:** Virtualized lab simulating a DoS attack from an external host through a pfSense firewall, with traffic capture in Wireshark and mitigation via custom firewall rules.
-
 
