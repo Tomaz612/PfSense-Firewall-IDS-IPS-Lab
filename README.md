@@ -294,9 +294,39 @@ Under **Global Settings**, rule sources were configured (e.g. the ET Open rulese
 
 Settings were saved, and the rules were downloaded from **Updates ▸ Update**.
 
+Downloading the ruleset alone does not enable any detection — each rule category has to be explicitly turned on per interface. Under **Interfaces ▸ WAN ▸ Categories**, the following categories were enabled:
+
+✅ emerging-scan.rules
+✅ emerging-dos.rules
+
 ### 4.6 Next: Testing Detection
 
-<!-- TODO: re-run the hping3 SYN flood from Kali with Suricata active, then capture: (1) the generated alert under Services ▸ Suricata ▸ Alerts, and (2) confirmation that Kali's IP was auto-blocked under Block Offenders. -->
+To observe Suricata's detection in isolation, the manual block rule from Part 3 was temporarily disabled — otherwise Kali's traffic would never reach the point of triggering a Suricata alert.
+
+A port scan was then run from Kali:
+
+```bash
+sudo nmap -sS 192.168.2.10
+```
+
+![Kali scan](images/5_kali_nmap.png)
+
+
+Checking **Services ▸ Suricata ▸ Alerts** shows multiple alerts triggered by the scan, without writing a single manual rule:
+
+![Alerts](images/6_suricata_alerts.png)
+
+
+The same events are visible under **Log View ▸ alerts-log**:
+
+```09/07/2026-22:17:53.737968  [**] [1:2010937:3] ET SCAN Suspicious inbound to mySQL port 3306 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 192.168.1.125:42574 -> 192.168.2.10:3306
+09/07/2026-22:17:53.818810  [**] [1:2010935:3] ET SCAN Suspicious inbound to MSSQL port 1433 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 192.168.1.125:42574 -> 192.168.2.10:1433
+09/07/2026-22:17:53.875462  [**] [1:2010936:3] ET SCAN Suspicious inbound to Oracle SQL port 1521 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 192.168.1.125:42574 -> 192.168.2.10:1521
+09/07/2026-22:17:53.876699  [**] [1:2010939:3] ET SCAN Suspicious inbound to PostgreSQL port 5432 [**] [Classification: Potentially Bad Traffic] [Priority: 2] {TCP} 192.168.1.125:42574 -> 192.168.2.10:5432
+09/07/2026-22:17:53.990109  [**] [1:2002910:6] ET SCAN Potential VNC Scan 5800-5820 [**] [Classification: Attempted Information Leak] [Priority: 2] {TCP} 192.168.1.125:42574 -> 192.168.2.10:5811
+```
+
+Each alert corresponds to a probe against a well-known service port (MySQL, MSSQL, Oracle, PostgreSQL, VNC) — exactly the behavior an `nmap` SYN scan produces, and detected purely through Suricata's Emerging Threats signatures, with no custom rule written for this scenario.
 
 ---
 
