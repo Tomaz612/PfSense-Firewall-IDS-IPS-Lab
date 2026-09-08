@@ -4,10 +4,12 @@
 
 This project implements a small virtualized network to study how a perimeter firewall (pfSense) handles a Denial-of-Service (DoS) attack from an external host. The lab consists of three virtual machines — **pfSense** (firewall), **Kali Linux** (attacker), and **Ubuntu Desktop** (victim) — used to:
 
+
 1. Stand up an isolated internal network behind a firewall
 2. Simulate a SYN flood attack with `hping3`
 3. Capture and analyze the attack traffic with Wireshark
 4. Mitigate the attack using pfSense firewall rules and review the resulting logs
+5. Deploy Suricata as an IDS/IPS on pfSense to detect and automatically block malicious traffic based on signature rules, without relying on manually written firewall rules
 
 ## Lab Architecture
 
@@ -297,6 +299,7 @@ Settings were saved, and the rules were downloaded from **Updates ▸ Update**.
 Downloading the ruleset alone does not enable any detection — each rule category has to be explicitly turned on per interface. Under **Interfaces ▸ WAN ▸ Categories**, the following categories were enabled:
 
 ✅ emerging-scan.rules
+
 ✅ emerging-dos.rules
 
 ### 4.6 Next: Testing Detection
