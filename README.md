@@ -331,5 +331,68 @@ The same events are visible under **Log View ▸ alerts-log**:
 
 Each alert corresponds to a probe against a well-known service port (MySQL, MSSQL, Oracle, PostgreSQL, VNC) — exactly the behavior an `nmap` SYN scan produces, and detected purely through Suricata's Emerging Threats signatures, with no custom rule written for this scenario.
 
+
+### 4.7 Writing a Custom Detection Rule
+
+Beyond the pre-built Emerging Threats categories, a custom Suricata rule was written to alert on inbound ICMP traffic toward the pfSense WAN address — the same type of traffic used earlier in the project to test connectivity.
+
+Added under **Services ▸ Suricata ▸ WAN (em0) ▸ WAN Rules**, category **`custom.rules`**:
+
+```
+alert icmp any any -> 192.168.1.162 any (msg:"ICMP traffic detected"; itype:8; sid:1000001; rev:1;)
+```
+
+- `itype:8` — matches ICMP Echo Request (ping) packets specifically
+- `sid:1000001` — custom rules require a Signature ID outside the range used by the official rulesets (1–1,000,000 is reserved)
+
+**Test — pinging pfSense from Kali:**
+
+```bash
+ping -c 4 192.168.1.162
+```
+![Kali Ping](images/ping_kali_4.png)
+
+Only **1 of the 4** packets received a reply (**75% packet loss**) — a direct result of Block Offenders reacting to the very first alert and blocking Kali's IP before the remaining pings could go through.
+
+
+**Alerts generated in Suricata:**
+
+All 4 ICMP echo requests were logged as individual alerts, confirming the custom rule matched as expected:
+
+![ICMP traffic alerts](images/alerts_icmp.png)
+
+
+**Automated block confirmed:**
+
+Since **Block Offenders** (IPS mode) was already enabled on the WAN interface (section 4.4), the very first alert was enough to automatically add Kali's IP to the blocked hosts list — with no manual firewall rule involved:
+
+![Kali IP auto-blocked](images/blocked_ips.png)
+
+This closes the loop for the IDS/IPS section: a **custom signature** detected the traffic, and the existing **IPS enforcement** acted on it automatically — the same detect-and-block pipeline demonstrated earlier with the pre-built scan rules, now driven by a rule written specifically for this lab.
+
+
 ---
 
+## Troubleshooting
+
+A few issues came up during setup that are worth documenting, since they're common pitfalls in this kind of lab.
+
+**DNS resolution failing despite working internet connectivity**
+
+While verifying the Ubuntu VM, `sudo apt install net-tools` failed to run. Diagnosis steps:
+
+1. Checked connectivity to the default gateway — worked
+2. Checked `ping 8.8.8.8` — worked (confirms raw IP routing is fine)
+3. Checked `ping google.com` — failed (points specifically to DNS resolution, not routing)
+
+Since IP-based connectivity worked but name resolution didn't, the issue was narrowed down to an incorrect DNS server rather than a network/firewall problem. Running `ip route | grep default` on the host machine's own connection confirmed the actual home router address is `192.168.1.254` — not `192.168.1.1`, which had been assumed and configured as the DNS server in pfSense.
+
+**Fix:** in the pfSense GUI, under **Services ▸ DHCP Server ▸ LAN**, the DNS Servers field was updated to `192.168.1.254`. Ubuntu picked up the corrected DNS server on its next DHCP renewal, and both `apt` and `ping google.com` started working.
+
+> **Takeaway:** when IP-based tests succeed but name-based tests fail, the issue is almost always DNS — check the resolver configuration before suspecting routing or firewall rules.
+
+
+## Repository
+
+**Name:** `PfSense-Firewall-IDS-IPS-Lab`
+**Description:** Virtualized lab simulating a DoS attack and port scan from an external host against a pfSense-protected network, with traffic capture in Wireshark, manual firewall-rule mitigation, and automated detection/blocking via a Suricata IDS/IPS with custom signatures.
