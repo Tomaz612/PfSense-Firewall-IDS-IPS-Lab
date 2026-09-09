@@ -191,7 +191,9 @@ This is the expected behavior of a SYN flood: the goal isn't to receive replies,
 
 ![Wireshark capture](images/wireshark_packet.png)
 
-The capture shows a sustained flood of `SYN` packets from Kali's IP (`192.168.1.125`) to Ubuntu's IP (`192.168.2.10`) on port 80, with no corresponding `SYN-ACK`/`ACK` handshake completion — consistent with a SYN flood pattern.
+The capture shows a sustained flood of `SYN` packets from Kali's IP (`192.168.1.125`) to Ubuntu's IP (`192.168.2.10`) on port 80, with Ubuntu immediately responding to each one with `RST, ACK` 
+
+> This **RST, ACK** response is standard TCP behavior for a closed port — Ubuntu was not running any service on port 80 at this point, so the connection attemptS were rejected outright rather than completing a handshake. This is an important distinction from a "textbook" SYN flood: against an open port, the target would instead reply with SYN-ACK and hold each connection in a half-open state in its backlog queue, and it's the exhaustion of that queue that eventually denies service to legitimate clients. Against a closed port, each SYN is rejected immediately and never occupies backlog resources — so what this capture demonstrates is the sheer volume of attack traffic reaching the victim through the firewall, rather than the resource-exhaustion mechanism a SYN flood is designed to exploit.
 
 ---
 
