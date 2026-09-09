@@ -370,7 +370,6 @@ Since **Block Offenders** (IPS mode) was already enabled on the WAN interface (s
 
 This closes the loop for the IDS/IPS section: a **custom signature** detected the traffic, and the existing **IPS enforcement** acted on it automatically — the same detect-and-block pipeline demonstrated earlier with the pre-built scan rules, now driven by a rule written specifically for this lab.
 
-
 ---
 
 ## Troubleshooting
