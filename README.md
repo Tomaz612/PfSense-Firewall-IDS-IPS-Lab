@@ -1,4 +1,4 @@
-# pfSense Firewall Lab — DoS Simulation & IDS/IPS Detection
+# pfSense Firewall & IDS/IPS Lab — DoS Attack Simulation, Detection & Mitigation
 
 ## Overview
 
