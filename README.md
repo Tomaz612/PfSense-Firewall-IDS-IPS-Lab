@@ -1,9 +1,8 @@
-# pfSense Firewall & IDS/IPS Lab — DoS Attack Simulation, Detection & Mitigation
+# pfSense Firewall & IDS/IPS Lab — SYN Flood Attack Simulation, Detection & Mitigation
 
 ## Overview
 
-This project implements a small virtualized network to study how a perimeter firewall (pfSense) handles a Denial-of-Service (DoS) attack from an external host. The lab consists of three virtual machines — **pfSense** (firewall), **Kali Linux** (attacker), and **Ubuntu Desktop** (victim) — used to:
-
+This project implements a small virtualized network to study how a perimeter firewall (pfSense) handles a SYN flood attack from an external host. The lab consists of three virtual machines — **pfSense** (firewall), **Kali Linux** (attacker), and **Ubuntu Desktop** (victim) — used to:
 
 1. Stand up an isolated internal network behind a firewall
 2. Simulate a SYN flood attack with `hping3`
@@ -169,7 +168,7 @@ sudo wireshark
 Capture was started on the primary interface (`enp0s3`) to observe incoming traffic during the attack.
 
 
-### 2.4 Simulating the DoS Attack
+### 2.4 Simulating the SYN Flood Attack
 
 From Kali, a SYN flood was launched against the Ubuntu victim on port 80:
 
@@ -214,7 +213,7 @@ To stop the attack, a **block** rule was added on **Firewall ▸ Rules ▸ WAN**
 pfSense evaluates rules top-to-bottom on the interface and applies the **first match**, so this block rule was placed above the earlier "Allow Kali access to Ubuntu" rule — otherwise the permissive rule would keep matching first and the block would never be reached.
 
 
-### 3.2 Re-running the DoS Attack
+### 3.2 Re-running the SYN Flood Attack
 
 The same attack was launched again from Kali to test the new rule:
 
@@ -394,4 +393,4 @@ Since IP-based connectivity worked but name resolution didn't, the issue was nar
 ## Repository
 
 **Name:** `PfSense-Firewall-IDS-IPS-Lab`
-**Description:** Virtualized lab simulating a DoS attack and port scan from an external host against a pfSense-protected network, with traffic capture in Wireshark, manual firewall-rule mitigation, and automated detection/blocking via a Suricata IDS/IPS with custom signatures.
+**Description:** Virtualized lab simulating a SYN flood attack and port scan from an external host against a pfSense-protected network, with traffic capture in Wireshark, manual firewall-rule mitigation, and automated detection/blocking via a Suricata IDS/IPS with custom signatures.
